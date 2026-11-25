@@ -10,7 +10,8 @@ Run from the repo root:
 The Drive folder must be shared as "anyone with the link can view".
 Photos are resized (1600 px full size, 640 px card thumbnail) and saved
 without metadata, so phone GPS data never reaches the site. Each new
-photo is numbered after the item's existing ones (e.g. blender-9.jpg).
+photo keeps its original Drive name (IMG_7192.HEIC becomes
+photos/IMG_7192.jpg plus the thumbnail IMG_7192-t.jpg).
 Afterwards, add the printed file names to the item's "Photos (site)"
 cell in the Sheet, and add a new row for any new folder.
 """
@@ -110,10 +111,7 @@ def main():
                 slug = slugify(f["folder"].rpartition("/")[2])
                 print(f"  NEW FOLDER: {f['folder']} -> {slug} (add a row to the Sheet)")
                 m["folders"][f["folder"]] = slug  # saved only on --apply
-            nums = [re.fullmatch(re.escape(slug) + r"-(\d+)\.jpg", x["site"]) for x in m["files"]]
-            nums += [re.fullmatch(re.escape(slug) + r"-(\d+)\.jpg", s) for s in pending.get(slug, [])]
-            n = 1 + max([int(x.group(1)) for x in nums if x] + [0])
-            site = f"{slug}-{n}.jpg"
+            site = re.sub(r"\.(jpe?g|heic|png)$", "", f["file"], flags=re.I) + ".jpg"
             pending.setdefault(slug, []).append(site)
             print(f"  new: {f['folder']}/{f['file']} -> {site}")
             if apply:
@@ -122,15 +120,16 @@ def main():
                 gdown.download(id=f["id"], output=local, quiet=True)
                 process(local, os.path.join(PHOTOS, site[:-4]))
                 m["files"].append({"folder": f["folder"], "file": f["file"], "site": site})
-                added.setdefault(slug, []).append(site)
+                added.setdefault(slug, []).append(f["file"])
     if apply:
         json.dump(m, open(MANIFEST, "w"), indent=1, ensure_ascii=False)
-    if renamed and not apply:
-        print("Folder renames are saved to the manifest on --apply.")
         for slug, names in added.items():
             print(f"Add to Sheet ({slug}): {', '.join(names)}")
-    elif new:
-        print("Dry run. Re-run with --apply to download and add these.")
+    else:
+        if renamed:
+            print("Folder renames are saved to the manifest on --apply.")
+        if new:
+            print("Dry run. Re-run with --apply to download and add these.")
 
 
 if __name__ == "__main__":

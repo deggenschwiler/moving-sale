@@ -123,7 +123,10 @@ function toItems(rows) {
 const $ = (id) => document.getElementById(id);
 const t = () => TEXT[state.lang];
 const desc = (it) => (state.lang === "es" ? it.es || it.en : it.en || it.es);
-const photoUrl = (name, thumb) => "photos/" + encodeURIComponent(thumb ? name.replace(/\.jpg$/i, "-t.jpg") : name);
+// Photo names in the Sheet are the original file names from Drive (e.g. IMG_7192.JPG or .HEIC).
+// The site stores each one as a resized JPEG with the same base name: IMG_7192.jpg and IMG_7192-t.jpg.
+const photoUrl = (name, thumb) =>
+  "photos/" + encodeURIComponent(name.replace(/\.(jpe?g|heic|png)$/i, "") + (thumb ? "-t.jpg" : ".jpg"));
 
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
