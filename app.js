@@ -7,7 +7,6 @@ const TEXT = {
   en: {
     title: "Moving Sale",
     lede: "We're moving from San Sebastián back to the US, so all of this needs a new home. Tap an item for more photos and details.",
-    hideSold: "Hide sold items",
     footer: "Prices are in euros. Message me on WhatsApp about anything here.",
     message: "Message me on WhatsApp",
     all: "All",
@@ -16,7 +15,7 @@ const TEXT = {
     sold: "Sold",
     askPrice: "Ask for price",
     noPhoto: "Photo coming soon",
-    count: (shown, avail) => `${shown} items shown, ${avail} still available`,
+    count: (shown) => `${shown} ${shown === 1 ? "item" : "items"}`,
     loading: "Loading items…",
     error: "The item list couldn't load right now. Please try again in a minute.",
     empty: "Nothing in this category right now.",
@@ -31,7 +30,6 @@ const TEXT = {
   es: {
     title: "Venta por mudanza",
     lede: "Nos mudamos de San Sebastián a Estados Unidos, así que todo esto necesita un nuevo hogar. Toca un artículo para ver más fotos y detalles.",
-    hideSold: "Ocultar vendidos",
     footer: "Precios en euros. Escríbeme por WhatsApp para cualquier cosa.",
     message: "Escríbeme por WhatsApp",
     all: "Todo",
@@ -40,7 +38,7 @@ const TEXT = {
     sold: "Vendido",
     askPrice: "Consultar precio",
     noPhoto: "Foto próximamente",
-    count: (shown, avail) => `${shown} artículos, ${avail} disponibles`,
+    count: (shown) => `${shown} ${shown === 1 ? "artículo" : "artículos"}`,
     loading: "Cargando artículos…",
     error: "No se ha podido cargar la lista ahora mismo. Inténtalo de nuevo en un minuto.",
     empty: "Ahora mismo no hay nada en esta categoría.",
@@ -60,7 +58,6 @@ const state = {
   lang: pickLang(),
   items: [],
   category: "all",
-  hideSold: false,
   open: null,
   photoIndex: 0,
 };
@@ -119,6 +116,7 @@ function toItems(rows) {
         photos: (r[c.photos] || "").split(",").map((s) => s.trim()).filter(Boolean),
       };
     })
+    .filter((it) => it.status !== "sold") // sold items never show (the Sheet also leaves them out)
     .sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
 }
 
@@ -175,10 +173,8 @@ function renderChips() {
 function renderGrid() {
   const grid = $("grid");
   grid.replaceChildren();
-  const list = state.items.filter((i) =>
-    (state.category === "all" || i.category === state.category) && !(state.hideSold && i.status === "sold"));
-  const avail = state.items.filter((i) => i.status === "available").length;
-  $("count").textContent = state.items.length ? t().count(list.length, avail) : "";
+  const list = state.items.filter((i) => state.category === "all" || i.category === state.category);
+  $("count").textContent = state.items.length ? t().count(list.length) : "";
   const msg = $("msg");
   msg.hidden = list.length > 0 || !state.items.length;
   if (!list.length && state.items.length) msg.textContent = t().empty;
@@ -190,7 +186,7 @@ function renderGrid() {
     } else {
       thumb.append(el("div", { class: "noimg", text: t().noPhoto }));
     }
-    thumb.append(badge(it.status));
+    if (it.status === "reserved") thumb.append(badge(it.status)); // only Reserved gets a label
     const card = el("button", { type: "button", class: `card is-${it.status}` },
       thumb,
       el("div", { class: "info" },
@@ -235,6 +231,7 @@ function renderDetail() {
   const b = $("dBadge");
   b.className = `badge ${it.status}`;
   b.textContent = t()[it.status];
+  b.hidden = it.status !== "reserved";
   $("dTitle").textContent = it.item;
   const p = $("dPrice");
   p.className = it.price ? "price" : "price ask";
@@ -269,7 +266,6 @@ function wireEvents() {
     try { localStorage.setItem("lang", state.lang); } catch (e) { /* storage blocked */ }
     renderStaticText(); renderChips(); renderGrid(); renderDetail();
   }));
-  $("hideSold").addEventListener("change", (e) => { state.hideSold = e.target.checked; renderGrid(); });
   $("dClose").addEventListener("click", closeDetail);
   $("dPrev").addEventListener("click", () => step(-1));
   $("dNext").addEventListener("click", () => step(1));
