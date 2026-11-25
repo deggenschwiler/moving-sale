@@ -1,6 +1,6 @@
 // Moving sale site. All item data comes from the "Public" tab of the
 // Moving Sale Tracker Google Sheet, published to the web as CSV.
-const SHEET_CSV_URL = "PASTE_PUBLISHED_CSV_URL_HERE";
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTbeE1KQT-EdT0eIV1sHzML2mmn7ijfSMkU610F-9smM0wh0aJJrXeX3bgHW-EuZ5_Rzd_6flv47vSV/pub?gid=2&single=true&output=csv";
 const WHATSAPP_NUMBER = "16164032081"; // international format, no + or spaces
 
 const TEXT = {
