@@ -14,12 +14,10 @@
   "IKEA Fargklar dishes": "dishes",
   "IKEA Turridning 9L trash bin": "ikea-bin",
   "J. Crew shirt": "shirt",
-  "Jala 8\" baking pan": "baking-pan",
   "Laundry bin": "laundry-hamper",
   "Nike Heritage brossbody bag": "nike-bag",
   "Oakley Sutro Lite Matte  Black with Prizm Jade Road Lens": "oakley-black",
   "Oakley Sutro Lite Matte White with Prizm Road Lens": "oakley-white",
-  "Otake bamboo and glass butter dish": "butter-dish",
   "Outlet adapters": "adapters",
   "Quechua backpack": "backpack",
   "Raelunyi steamer": "steamer",
@@ -30,7 +28,9 @@
   "Topeak Joeblow Sport III pump": "pump",
   "Various Kitchen Gadgets": "kitchen-tools",
   "Wood wall mirror": "mirror",
-  "Y·JH 30oz (850ml) Insulated Tumbler": "tumbler"
+  "Y·JH 30oz (850ml) Insulated Tumbler": "tumbler",
+  "Tala 8\" baking pan": "baking-pan",
+  "KIVY Otake bamboo and glass butter dish": "butter-dish"
  },
  "files": [
   {
@@ -329,22 +329,22 @@
    "site": "shirt-3.jpg"
   },
   {
-   "folder": "Jala 8\" baking pan",
+   "folder": "Tala 8\" baking pan",
    "file": "IMG_7212.JPG",
    "site": "baking-pan-1.jpg"
   },
   {
-   "folder": "Jala 8\" baking pan",
+   "folder": "Tala 8\" baking pan",
    "file": "IMG_7213.JPG",
    "site": "baking-pan-2.jpg"
   },
   {
-   "folder": "Jala 8\" baking pan",
+   "folder": "Tala 8\" baking pan",
    "file": "IMG_7214.JPG",
    "site": "baking-pan-3.jpg"
   },
   {
-   "folder": "Jala 8\" baking pan",
+   "folder": "Tala 8\" baking pan",
    "file": "IMG_7215.JPG",
    "site": "baking-pan-4.jpg"
   },
@@ -454,17 +454,17 @@
    "site": "oakley-white-8.jpg"
   },
   {
-   "folder": "Otake bamboo and glass butter dish",
+   "folder": "KIVY Otake bamboo and glass butter dish",
    "file": "IMG_7192.JPG",
    "site": "butter-dish-1.jpg"
   },
   {
-   "folder": "Otake bamboo and glass butter dish",
+   "folder": "KIVY Otake bamboo and glass butter dish",
    "file": "IMG_7193.JPG",
    "site": "butter-dish-2.jpg"
   },
   {
-   "folder": "Otake bamboo and glass butter dish",
+   "folder": "KIVY Otake bamboo and glass butter dish",
    "file": "IMG_7194.JPG",
    "site": "butter-dish-3.jpg"
   },

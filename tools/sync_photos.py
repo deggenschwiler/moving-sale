@@ -42,6 +42,26 @@ def list_drive(url):
     return out
 
 
+def detect_renames(m, drive):
+    """A folder that vanished from Drive and a new folder holding the same
+    file names is the same item renamed, so keep its photos and slug."""
+    by_folder = {}
+    for f in drive:
+        by_folder.setdefault(f["folder"], set()).add(f["file"])
+    known_files = {}
+    for x in m["files"] + m["skipped"]:
+        known_files.setdefault(x["folder"], set()).add(x["file"])
+    gone = [k for k in known_files if k not in by_folder]
+    fresh = [k for k in by_folder if k not in m["folders"]]
+    renames = {}
+    for old in gone:
+        for new in fresh:
+            if new not in renames.values() and known_files[old] <= by_folder[new]:
+                renames[old] = new
+                break
+    return renames
+
+
 def process(src, dest_base):
     from PIL import Image, ImageOps
     import pillow_heif
@@ -58,9 +78,15 @@ def main():
         sys.exit(__doc__)
     url, apply = sys.argv[1], "--apply" in sys.argv
     m = json.load(open(MANIFEST))
-    known = {(f["folder"], f["file"]) for f in m["files"]}
-    known |= {(f["folder"], f["file"]) for f in m["skipped"]}
     drive = list_drive(url)
+    renamed = detect_renames(m, drive)
+    for old_name, new_name in renamed.items():
+        print(f"  folder renamed: {old_name} -> {new_name} (same photos, nothing to download)")
+        m["folders"][new_name] = m["folders"].pop(old_name)
+        for x in m["files"] + m["skipped"]:
+            if x["folder"] == old_name:
+                x["folder"] = new_name
+    known = {(f["folder"], f["file"]) for f in m["files"]} | {(f["folder"], f["file"]) for f in m["skipped"]}
     on_drive = {(f["folder"], f["file"]) for f in drive}
 
     new = [f for f in drive if (f["folder"], f["file"]) not in known]
@@ -83,8 +109,7 @@ def main():
             if not slug:
                 slug = slugify(f["folder"].rpartition("/")[2])
                 print(f"  NEW FOLDER: {f['folder']} -> {slug} (add a row to the Sheet)")
-                if apply:
-                    m["folders"][f["folder"]] = slug
+                m["folders"][f["folder"]] = slug  # saved only on --apply
             nums = [re.fullmatch(re.escape(slug) + r"-(\d+)\.jpg", x["site"]) for x in m["files"]]
             nums += [re.fullmatch(re.escape(slug) + r"-(\d+)\.jpg", s) for s in pending.get(slug, [])]
             n = 1 + max([int(x.group(1)) for x in nums if x] + [0])
@@ -100,6 +125,8 @@ def main():
                 added.setdefault(slug, []).append(site)
     if apply:
         json.dump(m, open(MANIFEST, "w"), indent=1, ensure_ascii=False)
+    if renamed and not apply:
+        print("Folder renames are saved to the manifest on --apply.")
         for slug, names in added.items():
             print(f"Add to Sheet ({slug}): {', '.join(names)}")
     elif new:
